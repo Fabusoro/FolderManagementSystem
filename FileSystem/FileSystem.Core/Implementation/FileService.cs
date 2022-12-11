@@ -1,16 +1,21 @@
 ﻿using FileSystem.Core.Interface;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using ILogger = Serilog.ILogger;
 
 namespace FileSystem.Core.Implementation
 {
     public class FileService : IFileService
-    {                
-        
+    {
+
+        private readonly ILogger _logger;
+
+        public FileService(IServiceProvider provider)
+        {
+            _logger = provider.GetRequiredService<ILogger>();
+        }
+
+
         /// <summary>
         /// Interacts with file repository to create files using IFormFile       
         /// </summary>
@@ -23,17 +28,19 @@ namespace FileSystem.Core.Implementation
             {
                 if (!Directory.Exists(folderPath))
                 {
+                    _logger.Information("folder not found");
                     return "folder not found";
                 }
                 var filePath = Path.Combine(folderPath, formFile.FileName);
                 using (FileStream fs = File.Create(filePath))
+                    _logger.Information("file added");
                 return formFile.Name;
             }
             catch
             {
                 throw;
             }
-            
+
         }
 
         /// <summary>
@@ -47,6 +54,7 @@ namespace FileSystem.Core.Implementation
             {
                 if (!File.Exists(filePath))
                 {
+                    _logger.Information("folder not found");
                     return "folder not found";
                 }
                 if (filePath == null)
@@ -54,13 +62,14 @@ namespace FileSystem.Core.Implementation
                     return "specify file path";
                 }
                 File.Delete(filePath);
+                _logger.Information("file successfully deleted");
                 return "sucessfully deleted";
             }
             catch
             {
                 throw;
             }
-            
+
         }
 
         /// <summary>
@@ -75,6 +84,7 @@ namespace FileSystem.Core.Implementation
             {
                 if (!Directory.Exists(folderPath))
                 {
+                    _logger.Information("Could not get file names");
                     throw new Exception("folder does not exist");
                 }
                 List<string> paths = new List<string>();
@@ -84,13 +94,14 @@ namespace FileSystem.Core.Implementation
                     var d = (Path.GetFileName(file));
                     paths.Add(d);
                 }
+                _logger.Information("Got all file names from directory");
                 return paths;
             }
             catch
             {
                 throw;
             }
-            
+
         }
 
         /// <summary>
@@ -106,15 +117,17 @@ namespace FileSystem.Core.Implementation
             {
                 if (!Directory.Exists(folderPath))
                 {
+                    _logger.Information("Could not rename file");
                     return "file not found";
                 }
                 File.Move(Path.Combine(folderPath, fileName), Path.Combine(folderPath, newFileName));
+                _logger.Information("File renamed");
                 return "update successful";
             }
             catch
             {
                 throw;
-            }           
+            }
         }
     }
 }
