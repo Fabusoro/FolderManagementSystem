@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="rootpath\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 
 </Project>
